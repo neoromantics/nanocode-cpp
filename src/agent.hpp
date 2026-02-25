@@ -3,21 +3,31 @@
 #include "llm_client.hpp"
 #include <boost/asio/awaitable.hpp>
 #include <boost/json.hpp>
-#include <vector>
+#include <string>
 
 namespace agent {
 
+struct AgentConfig {
+  std::string gemini_key;
+  std::string anthropic_key;
+  std::string openrouter_key;
+  std::string initial_model;
+};
+
 class Agent {
 public:
-  Agent(LLMConfig config);
+  Agent(AgentConfig config);
 
   // Run the interactive agent loop
   boost::asio::awaitable<void> run();
 
 private:
-  LLMConfig config_;
+  AgentConfig agent_config_;
+  std::string current_model_;
   std::vector<boost::json::value> messages_;
   std::string system_prompt_;
+
+  LLMConfig get_llm_config() const;
 
   boost::asio::awaitable<void> run_agentic_loop();
 

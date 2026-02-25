@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(nanocode-cpp LANGUAGES CXX)
+project(nanocode-cpp LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -18,6 +18,14 @@ find_package(OpenSSL REQUIRED)
 # Find Boost
 find_package(Boost CONFIG REQUIRED COMPONENTS json)
 
+include(FetchContent)
+FetchContent_Declare(
+  replxx
+  GIT_REPOSITORY https://github.com/AmokHuginnsson/replxx.git
+  GIT_TAG        master
+)
+FetchContent_MakeAvailable(replxx)
+
 # Add our source files
 file(GLOB SOURCES "src/*.cpp")
 
@@ -31,6 +39,7 @@ target_link_libraries(nanocode
     Boost::json
     OpenSSL::SSL
     OpenSSL::Crypto
+    replxx
 )
 
 # Optional: macOS CoreFoundation / Security frameworks for Boost.Asio SSL sometimes needed,

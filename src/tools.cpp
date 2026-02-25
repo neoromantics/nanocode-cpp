@@ -311,6 +311,66 @@ ToolResult execute_bash(const boost::json::object &args) {
   return result;
 }
 
+ToolResult execute_fetch_url(const boost::json::object &args) {
+  std::string url = get_string(args, "url");
+  std::string cmd = "curl -sL '" + url + "'";
+
+  FILE *fp = popen(cmd.c_str(), "r");
+  if (!fp)
+    return std::unexpected("error: popen failed to run curl");
+
+  std::stringstream out;
+  char buffer[1024];
+  while (fgets(buffer, sizeof(buffer), fp) != nullptr) {
+    out << buffer;
+  }
+  pclose(fp);
+
+  std::string result = out.str();
+  if (result.empty())
+    return "(empty or error)";
+
+  if (result.size() > 100000) {
+    result = result.substr(0, 100000) + "\n...[TRUNCATED]";
+  }
+
+  return result;
+}
+
+ToolResult execute_python(const boost::json::object &args) {
+  std::string code = get_string(args, "code");
+
+  std::ofstream out_file(".tmp_nano_script.py");
+  if (!out_file)
+    return std::unexpected("error: failed to write temp python script");
+  out_file << code;
+  out_file.close();
+
+  std::string cmd = "python3 .tmp_nano_script.py 2>&1";
+  FILE *fp = popen(cmd.c_str(), "r");
+  if (!fp)
+    return std::unexpected("error: popen failed to run python3");
+
+  std::stringstream out;
+  char buffer[1024];
+  while (fgets(buffer, sizeof(buffer), fp) != nullptr) {
+    std::string line(buffer);
+    std::cout << "  \033[2m"
+              << "│ py: " << line << "\033[0m" << std::flush;
+    out << line;
+  }
+  pclose(fp);
+  std::error_code ec;
+  fs::remove(".tmp_nano_script.py", ec);
+
+  std::string result = out.str();
+  if (result.empty())
+    return "(empty)";
+  while (!result.empty() && (result.back() == '\n' || result.back() == '\r'))
+    result.pop_back();
+  return result;
+}
+
 boost::json::array get_tools_schema() {
   return {
       {{"name", "read"},
@@ -360,7 +420,19 @@ boost::json::array get_tools_schema() {
        {"input_schema",
         {{"type", "object"},
          {"properties", {{"cmd", {{"type", "string"}}}}},
-         {"required", {"cmd"}}}}}};
+         {"required", {"cmd"}}}}},
+      {{"name", "fetch_url"},
+       {"description", "Fetch text content from a URL"},
+       {"input_schema",
+        {{"type", "object"},
+         {"properties", {{"url", {{"type", "string"}}}}},
+         {"required", {"url"}}}}},
+      {{"name", "execute_python"},
+       {"description", "Execute a python script and return its stdout/stderr"},
+       {"input_schema",
+        {{"type", "object"},
+         {"properties", {{"code", {{"type", "string"}}}}},
+         {"required", {"code"}}}}}};
 }
 
 } // namespace tools

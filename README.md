@@ -5,9 +5,12 @@ A C++23 rewrite of nanocode, a minimal agentic coding assistant. This version na
 ## Features
 
 - Complete native C++ implementation
-- Interactive agentic loop
-- Built-in tools: read, write, edit, glob, grep, bash
+- Interactive agentic loop with `linenoise` (up-arrow history support)
+- Server-Sent Events (SSE) streaming for real-time text output
+- Built-in tools: `read`, `write`, `edit`, `glob`, `grep`, `bash`, `fetch_url`, `execute_python`
+- Conversational persistence (`/save` and `/load`)
 - API support for Gemini, Anthropic, and OpenRouter
+- Configuration via `.nanocoderc` and CLI arguments
 - Asynchronous networking using Boost coroutines
 
 ## Prerequisites
@@ -33,7 +36,7 @@ A C++23 rewrite of nanocode, a minimal agentic coding assistant. This version na
 
 ## Usage
 
-Set one of the following environment variables:
+Set one or more of the following environment variables:
 - `GEMINI_API_KEY`
 - `ANTHROPIC_API_KEY`
 - `OPENROUTER_API_KEY`
@@ -44,6 +47,13 @@ Run the executable:
 ```bash
 ./build/nanocode
 ```
+
+### Commands
+- `/model <model_name>` - Switch the active model seamlessly mid-conversation.
+- `/save <file.json>` - Save the current conversation history to a JSON file.
+- `/load <file.json>` - Load a previously saved conversation history.
+- `/c` - Clear the context and message history.
+- `/q` or `exit` - Quit the application.
 
 ## License
 

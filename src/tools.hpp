@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string>
-#include <expected>
 #include <boost/json.hpp>
+#include <expected>
+#include <string>
 
 namespace tools {
 
@@ -11,12 +11,14 @@ namespace tools {
 // or an error string if something went wrong.
 using ToolResult = std::expected<std::string, std::string>;
 
-ToolResult execute_read(const boost::json::object& args);
-ToolResult execute_write(const boost::json::object& args);
-ToolResult execute_edit(const boost::json::object& args);
-ToolResult execute_glob(const boost::json::object& args);
-ToolResult execute_grep(const boost::json::object& args);
-ToolResult execute_bash(const boost::json::object& args);
+ToolResult execute_read(const boost::json::object &args);
+ToolResult execute_write(const boost::json::object &args);
+ToolResult execute_edit(const boost::json::object &args);
+ToolResult execute_glob(const boost::json::object &args);
+ToolResult execute_grep(const boost::json::object &args);
+ToolResult execute_bash(const boost::json::object &args);
+ToolResult execute_fetch_url(const boost::json::object &args);
+ToolResult execute_python(const boost::json::object &args);
 
 // Returns the JSON schema for all available tools
 boost::json::array get_tools_schema();
